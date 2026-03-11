@@ -3,7 +3,6 @@ Description=Chromium fullscreen bus display for user %i
 After=graphical.target
 
 [Service]
-User=%i
 Environment=DISPLAY=:0
 Environment=XAUTHORITY=%h/.Xauthority
 WorkingDirectory=%h/Makerspace_Bus_Timetable_v2
