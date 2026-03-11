@@ -1,6 +1,6 @@
 [Unit]
 Description=Chromium fullscreen bus display for user %i
-After=graphical.target
+After=graphical-session.target
 
 [Service]
 Environment=DISPLAY=:0
@@ -12,8 +12,7 @@ ExecStart=/usr/bin/chromium \
   --disable-infobars \
   --hide-crash-restore-bubble \
   file://%h/Makerspace_Bus_Timetable_v2/buses.html
-
 Restart=always
 
 [Install]
-WantedBy=graphical.target
+WantedBy=graphical-session.target
