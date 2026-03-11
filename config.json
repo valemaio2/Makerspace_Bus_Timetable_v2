@@ -1,0 +1,39 @@
+{
+  "stops": {
+    "Ely Bridge Halfords": {
+      "atco": "5710AWA11320",
+      "limit": 7
+    },
+    "ely_bridge_west": {
+      "atco": "5710AWA11319",
+      "limit": 7
+    },
+    "ely_road_north": {
+      "atco": "5710AWA11318",
+      "limit": 7
+    },
+    "waun_gron_road_south": {
+      "atco": "5710AWA11317",
+      "limit": 7
+    },
+    "waun_gron_park_station": {
+      "atco": "5710AWA11316",
+      "limit": 7
+    },
+    "ely_legion_east": {
+      "atco": "5710AWA11315",
+      "limit": 7
+    },
+    "colin_way_west": {
+      "atco": "5710AWA11314",
+      "limit": 7
+    }
+  },
+  "train_stations": {
+    "Waun-Gron Park": {
+      "code": "WNG",
+      "limit": 7
+    }
+  },
+  "scrape_interval_seconds": 120
+}
