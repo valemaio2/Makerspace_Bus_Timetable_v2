@@ -1,7 +1,8 @@
 [Unit]
-Description=Generate bus & train board HTML
+Description=Generate bus & train board HTML for user %i
 
 [Service]
 Type=oneshot
-WorkingDirectory=/home/hackspace/bus
-ExecStart=/home/$USER/Makerspace_Bus_Timetable_v2/bin/python /home/$USER/Makerspace_Bus_Timetable_v2/scrape_buses.py
+User=%i
+WorkingDirectory=%h/Makerspace_Bus_Timetable_v2
+ExecStart=%h/Makerspace_Bus_Timetable_v2/bin/python %h/Makerspace_Bus_Timetable_v2/scrape_buses.py
