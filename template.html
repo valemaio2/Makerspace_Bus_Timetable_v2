@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="60">
+
+<title>{title}</title>
+
+<style>
+
+  body {{
+    margin: 0;
+    padding: 20px;
+    background: #111;
+    color: #eee;
+    font-family: Arial, sans-serif;
+  }}
+
+  @font-face {{
+    font-family: "OpenDyslexic";
+    src: url("/usr/share/fonts/opentype/opendyslexic/OpenDyslexic-Regular.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+  }}
+
+  h1 {{
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+  }}
+
+  .grid {{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-gap: 20px;
+  }}
+
+  /* BUS CARDS */
+
+  .bus-card {{
+    background: #1b1b1b;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #000;
+  }}
+
+  .bus-stop-title {{
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+    color: #4da3ff;
+  }}
+
+  .bus-table {{
+    width: 100%;
+    border-collapse: collapse;
+  }}
+
+  .bus-table td {{
+    padding: 8px 0;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #222;
+  }}
+
+  .bus-line {{
+    width: 60px;
+    text-align: center;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 4px;
+
+    /* White text with black outline for readability */
+    text-shadow:
+      -1px -1px 0 #000,
+       1px -1px 0 #000,
+      -1px  1px 0 #000,
+       1px  1px 0 #000;
+  }}
+
+  .bus-destination {{
+    padding-left: 10px;
+  }}
+
+  .bus-eta {{
+    text-align: right;
+    color: #ffdd00;
+    font-family: "DejaVu Sans Mono", "Consolas", monospace;
+  }}
+
+  /* TRAIN CARDS */
+
+  .train-card {{
+    background: #1b1b1b;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #000;
+  }}
+
+  .train-logo {{
+    height: 24px;
+    width: auto;
+    vertical-align: middle;
+    margin-right: 8px;
+  }}
+
+  .train-platform {{
+    width: 40px;
+    text-align: center;
+    color: #ffdd00;
+    font-family: "DejaVu Sans Mono", monospace;
+  }}
+
+  .train-station-title {{
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+    color: #00d4ff;
+  }}
+
+  .train-table {{
+    width: 100%;
+    border-collapse: collapse;
+  }}
+
+  .train-table td {{
+    padding: 8px 0;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #222;
+  }}
+
+  .train-time {{
+    width: 70px;
+    font-family: "DejaVu Sans Mono", monospace;
+    color: #ffdd00;
+  }}
+
+  .train-destination {{
+    padding-left: 10px;
+  }}
+
+  .train-status {{
+    text-align: right;
+    color: #8cff8c;
+  }}
+
+  /* NO SERVICES MESSAGE */
+
+  .no-buses {{
+    color: #bbb;
+    font-size: 1.3rem;
+    padding: 10px 0;
+    text-align: center;
+  }}
+
+  /* LIVE CLOCK */
+
+  #live-clock {{
+    margin-top: 30px;
+    text-align: center;
+    font-size: 3rem;
+    color: #ffdd00;
+    font-family: "DejaVu Sans Mono", "Consolas", monospace;
+    letter-spacing: 2px;
+  }}
+
+  #last-updated {{
+    margin-top: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #bbb;
+  }}
+
+</style>
+
+</head>
+<body>
+
+<h1>{heading}</h1>
+
+<div class="grid">
+{content}
+</div>
+
+<div id="live-clock"></div>
+<div id="last-updated">Last updated: {last_updated}</div>
+
+<script>
+function updateClock() {{
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  document.getElementById("live-clock").textContent = hh + ":" + mm + ":" + ss;
+}}
+
+updateClock();
+setInterval(updateClock, 1000);
+
+// Auto-refresh the page every 60 seconds
+setInterval(() => {{
+  location.reload();
+}}, 60000);
+</script>
+
+</body>
+</html>
