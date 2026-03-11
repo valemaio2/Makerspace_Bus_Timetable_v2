@@ -30,7 +30,7 @@ cd "$PROJECT_DIR"
 # ---------------------------------------------------------
 echo "Installing system packages..."
 sudo apt update
-sudo apt install -y python3 python3-venv python3-pip git chromium-browser
+sudo apt install -y python3 python3-venv python3-pip git chromium
 
 # ---------------------------------------------------------
 # Create virtual environment
