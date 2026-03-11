@@ -4,5 +4,5 @@
   "duration_seconds": 5,
   "test_mode": true,
   "test_value": 200,
-  "logging_enabled": true,
+  "logging_enabled": true
 }
