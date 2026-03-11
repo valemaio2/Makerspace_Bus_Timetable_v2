@@ -1,0 +1,10 @@
+[Unit]
+Description=Run light control for user %i every minute
+
+[Timer]
+OnBootSec=20sec
+OnUnitActiveSec=60sec
+Unit=light-control@%i.service
+
+[Install]
+WantedBy=timers.target
