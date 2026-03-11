@@ -4,4 +4,4 @@ Description=Ambient Light Monitor for Display Control
 [Service]
 Type=oneshot
 WorkingDirectory=/home/hackspace/bus
-ExecStart=/usr/bin/python3 /home/$USER/Makerspace_Bus_Timetable_v2/light_control.py
+ExecStart=/home/$USER/Makerspace_Bus_Timetable_v2/bin/python /home/$USER/Makerspace_Bus_Timetable_v2/light_control.py
