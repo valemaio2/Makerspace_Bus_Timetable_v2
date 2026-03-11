@@ -1,0 +1,8 @@
+[Unit]
+Description=Ambient Light Monitor for Display Control (%i)
+
+[Service]
+Type=oneshot
+User=%i
+WorkingDirectory=%h/Makerspace_Bus_Timetable_v2
+ExecStart=%h/Makerspace_Bus_Timetable_v2/bin/python %h/Makerspace_Bus_Timetable_v2/light_control.py
