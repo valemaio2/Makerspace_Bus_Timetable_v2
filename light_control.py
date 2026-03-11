@@ -8,7 +8,7 @@ import RPi.GPIO as GPIO
 CONFIG_FILE = "light_config.json"
 STATE_FILE = "/tmp/display_state.json"
 
-LOG_DIR = "/home/hackspace/bus/log"
+LOG_DIR = "/home/$USER/Makerspace_Bus_Timetable_v2/log"
 LOG_FILE = os.path.join(LOG_DIR, "light_control.log")
 
 
