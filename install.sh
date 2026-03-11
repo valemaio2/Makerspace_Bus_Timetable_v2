@@ -6,14 +6,14 @@ PROJECT_DIR="/home/$USER/Makerspace_Bus_Timetable_v2"
 VENV_DIR="$PROJECT_DIR"
 PYTHON_BIN="$VENV_DIR/bin/python3"
 PIP_BIN="$VENV_DIR/bin/pip3"
+SYSTEMD_USER_DIR="/home/$USER/.config/systemd/user"
 
 echo "=== Makerspace Bus Timetable v2 Installer ==="
-echo "Installing into: $PROJECT_DIR"
+echo "User: $USER"
+echo "Project dir: $PROJECT_DIR"
 echo
 
-# ---------------------------------------------------------
-# Clone or update repository
-# ---------------------------------------------------------
+# Clone or update repo
 if [ ! -d "$PROJECT_DIR/.git" ]; then
     echo "Cloning repository..."
     git clone "$REPO_URL" "$PROJECT_DIR"
@@ -25,16 +25,12 @@ fi
 
 cd "$PROJECT_DIR"
 
-# ---------------------------------------------------------
-# Install system dependencies
-# ---------------------------------------------------------
+# System packages
 echo "Installing system packages..."
 sudo apt update
 sudo apt install -y python3 python3-venv python3-pip git chromium
 
-# ---------------------------------------------------------
-# Create virtual environment
-# ---------------------------------------------------------
+# Virtualenv
 if [ ! -d "$VENV_DIR/bin" ]; then
     echo "Creating virtual environment..."
     python3 -m venv "$VENV_DIR"
@@ -42,51 +38,46 @@ else
     echo "Virtual environment already exists."
 fi
 
-# ---------------------------------------------------------
-# Upgrade pip
-# ---------------------------------------------------------
+# Pip + deps
 echo "Upgrading pip..."
 $PIP_BIN install --upgrade pip
 
-# ---------------------------------------------------------
-# Install Python dependencies
-# ---------------------------------------------------------
 echo "Installing Python dependencies..."
 $PIP_BIN install -r requirements.txt
 
-# ---------------------------------------------------------
-# Create log directory
-# ---------------------------------------------------------
+# Log dir
 mkdir -p "$PROJECT_DIR/log"
 
-# ---------------------------------------------------------
-# Install systemd templated services
-# ---------------------------------------------------------
-echo "Installing systemd services..."
+# Systemd user units
+echo "Installing user-level systemd units..."
+mkdir -p "$SYSTEMD_USER_DIR"
 
-sudo cp bus-scraper@.service /etc/systemd/system/
-sudo cp bus-scraper@.timer /etc/systemd/system/
-sudo cp light-control@.service /etc/systemd/system/
-sudo cp light-control@.timer /etc/systemd/system/
-sudo cp busdisplay@.service /etc/systemd/system/
+cp bus-scraper@.service "$SYSTEMD_USER_DIR/"
+cp bus-scraper@.timer "$SYSTEMD_USER_DIR/"
+cp light-control@.service "$SYSTEMD_USER_DIR/"
+cp light-control@.timer "$SYSTEMD_USER_DIR/"
+cp busdisplay@.service "$SYSTEMD_USER_DIR/"
 
-sudo systemctl daemon-reload
+systemctl --user daemon-reload
 
-# Enable timers and services for this user
-sudo systemctl enable bus-scraper@${USER}.timer
-sudo systemctl enable light-control@${USER}.timer
-sudo systemctl enable busdisplay@${USER}.service
+# Enable linger so user services run at boot
+echo "Enabling linger for $USER..."
+sudo loginctl enable-linger "$USER"
 
-sudo systemctl start bus-scraper@${USER}.timer
-sudo systemctl start light-control@${USER}.timer
-sudo systemctl restart busdisplay@${USER}.service
+# Enable + start units for this user
+echo "Enabling and starting timers and services..."
+systemctl --user enable bus-scraper@${USER}.timer
+systemctl --user enable light-control@${USER}.timer
+systemctl --user enable busdisplay@${USER}.service
 
-# ---------------------------------------------------------
-# Fix permissions
-# ---------------------------------------------------------
+systemctl --user start bus-scraper@${USER}.timer
+systemctl --user start light-control@${USER}.timer
+systemctl --user restart busdisplay@${USER}.service
+
+# Permissions
 sudo chown -R "$USER:$USER" "$PROJECT_DIR"
 
 echo
-echo "=== Installation complete! ==="
-echo "Project installed at: $PROJECT_DIR"
-echo "Services enabled for user: $USER"
+echo "=== Installation complete ==="
+echo "HTML: $PROJECT_DIR/buses.html"
+echo "Systemd user units installed in: $SYSTEMD_USER_DIR"
