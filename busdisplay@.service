@@ -1,0 +1,20 @@
+[Unit]
+Description=Chromium fullscreen bus display for user %i
+After=graphical.target
+
+[Service]
+User=%i
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=%h/.Xauthority
+WorkingDirectory=%h/Makerspace_Bus_Timetable_v2
+ExecStart=/usr/bin/chromium \
+  --start-fullscreen \
+  --noerrdialogs \
+  --disable-infobars \
+  --hide-crash-restore-bubble \
+  file://%h/Makerspace_Bus_Timetable_v2/buses.html
+
+Restart=always
+
+[Install]
+WantedBy=graphical.target
