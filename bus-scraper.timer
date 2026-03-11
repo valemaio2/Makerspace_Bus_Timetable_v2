@@ -1,10 +1,10 @@
 [Unit]
-Description=Run bus & train scraper every 1 minute
+Description=Run bus scraper for user %i every 2 minutes
 
 [Timer]
 OnBootSec=30sec
-OnUnitActiveSec=1min
-Unit=bus-scraper.service
+OnUnitActiveSec=120sec
+Unit=bus-scraper@%i.service
 
 [Install]
 WantedBy=timers.target
