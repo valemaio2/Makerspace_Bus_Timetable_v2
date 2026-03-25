@@ -5,27 +5,31 @@
       "limit": 7
     },
     "ely_bridge_west": {
-      "atco": "5710AWA11319",
+      "atco": "5710AWA11330",
       "limit": 7
     },
     "ely_road_north": {
-      "atco": "5710AWA11318",
+      "atco": "5710AWA11331",
       "limit": 7
     },
     "waun_gron_road_south": {
-      "atco": "5710AWA11317",
+      "atco": "5710AWA11319",
       "limit": 7
     },
     "waun_gron_park_station": {
-      "atco": "5710AWA11316",
+      "atco": "5710AWA11337",
+      "limit": 7
+    },
+    "waun_gron_park_station_west": {
+      "atco": "5710AWA11338",
       "limit": 7
     },
     "ely_legion_east": {
-      "atco": "5710AWA11315",
+      "atco": "5710AWA11572",
       "limit": 7
     },
     "colin_way_west": {
-      "atco": "5710AWA11314",
+      "atco": "5710AWA11479",
       "limit": 7
     }
   },
@@ -33,7 +37,11 @@
     "Waun-Gron Park": {
       "code": "WNG",
       "limit": 7
+    },
+    "Cardiff Central": {
+      "code": "CDF",
+      "limit": 10
     }
   },
-  "scrape_interval_seconds": 120
+  "scrape_interval_seconds": 60
 }
