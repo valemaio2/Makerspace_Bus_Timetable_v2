@@ -143,6 +143,14 @@ def render_train_card(station_name, departures):
       </table>
     </div>
     """
+    
+def render_clock_card(last_updated):
+    return f"""
+    <div class="clock-card">
+      <div id="live-clock" class="clock-time"></div>
+      <div class="clock-updated">Last updated: {last_updated}</div>
+    </div>
+    """
 
 def load_config():
     with open("config.json") as f:
@@ -214,15 +222,19 @@ def main():
     # -------------------------
     # NOW generate the HTML
     # -------------------------
+    clock_card = render_clock_card(datetime.now().strftime("%H:%M:%S"))
+    
     with open("template.html") as f:
         template = f.read()
-
+    
     html = template.format(
         title="Bus Departures",
         heading="Live Bus & Train Departures",
         content=content,
+        clock_card=clock_card,
         last_updated=datetime.now().strftime("%H:%M:%S")
     )
+
 
     with open("buses.html", "w") as f:
         f.write(html)
