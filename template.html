@@ -87,6 +87,30 @@
     font-family: "DejaVu Sans Mono", "Consolas", monospace;
   }}
 
+    /* CLOCK CARD */
+
+  .clock-card {{
+    background: #1b1b1b;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #000;
+    text-align: center;
+  }}
+
+  .clock-time {{
+    font-size: 3rem;
+    color: #ffdd00;
+    font-family: "DejaVu Sans Mono", "Consolas", monospace;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }}
+
+  .clock-updated {{
+    font-size: 1.2rem;
+    color: #bbb;
+  }}
+
+
   /* TRAIN CARDS */
 
   .train-card {{
@@ -178,10 +202,8 @@
 
 <div class="grid">
 {content}
+{clock_card}
 </div>
-
-<div id="live-clock"></div>
-<div id="last-updated">Last updated: {last_updated}</div>
 
 <script>
 function updateClock() {{
