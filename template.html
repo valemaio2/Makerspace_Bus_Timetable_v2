@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="60">
+<!--<meta http-equiv="refresh" content="60"> -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
 <title>{title}</title>
 
@@ -90,15 +93,13 @@
     /* CLOCK CARD */
 
   .clock-card {{
-    background: #1b1b1b;
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px #000;
+    background: transparent;
+    padding: 0;
     text-align: center;
   }}
 
   .clock-time {{
-    font-size: 3rem;
+    font-size: 6rem;
     color: #ffdd00;
     font-family: "DejaVu Sans Mono", "Consolas", monospace;
     letter-spacing: 2px;
@@ -110,6 +111,12 @@
     color: #bbb;
   }}
 
+  .connection-summary {{
+      font-size: 1rem;
+      color: #bbb;
+      margin-bottom: 10px;
+      text-align: left;
+  }}
 
   /* TRAIN CARDS */
 
@@ -173,17 +180,6 @@
     font-size: 1.3rem;
     padding: 10px 0;
     text-align: center;
-  }}
-
-  /* LIVE CLOCK */
-
-  #live-clock {{
-    margin-top: 30px;
-    text-align: center;
-    font-size: 3rem;
-    color: #ffdd00;
-    font-family: "DejaVu Sans Mono", "Consolas", monospace;
-    letter-spacing: 2px;
   }}
 
   #last-updated {{
