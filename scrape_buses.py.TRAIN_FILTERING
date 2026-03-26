@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 
 BASE_URL = "https://www.cardiffbus.com/stops/"
 VALID_TERMINI = {"Cardiff Central", "Merthyr Tydfil"}   # Only these Waun-Gron trains count for connections
-WAUN_STATION_KEY = "WNG"                    # Must match config.json key
-CENTRAL_STATION_KEY = "CDF"                # Must match config.json key
+WAUN_STATION_KEY = "Waun-Gron Park"                    # Must match config.json key
+CENTRAL_STATION_KEY = "Cardiff Central"                # Must match config.json key
 
 def render_connection_summary(arrival_time, waun_departure):
     return f"""
