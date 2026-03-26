@@ -1,0 +1,348 @@
+import requests
+from bs4 import BeautifulSoup
+import json
+from datetime import datetime, timedelta
+
+
+BASE_URL = "https://www.cardiffbus.com/stops/"
+VALID_TERMINI = {"Cardiff Central", "Merthyr Tydfil"}   # Only these Waun-Gron trains count for connections
+WAUN_STATION_KEY = "WNG"                    # Must match config.json key
+CENTRAL_STATION_KEY = "CDF"                # Must match config.json key
+
+def render_connection_summary(arrival_time, waun_departure):
+    return f"""
+    <div class="connection-summary">
+    Via Waun-Gron Park: departs {waun_departure.strftime("%H:%M")}, arrives Cardiff Central {arrival_time.strftime("%H:%M")}
+    </div>
+    """
+    
+def scrape_train_station(code):
+    url = f"https://www.realtimetrains.co.uk/search/simple/gb-nr:{code}"
+
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    r = requests.get(url, headers=headers, timeout=10)
+    r.raise_for_status()
+
+    soup = BeautifulSoup(r.text, "html.parser")
+
+    services = soup.find_all("a", class_="service")
+
+    departures = []
+
+    for svc in services:
+        # --- TIME ---
+        time_el = svc.select_one(".time")
+        raw_time = time_el.get_text(strip=True) if time_el else ""
+
+        # Convert 4-digit time (e.g. 1045) → 10:45
+        if len(raw_time) == 4 and raw_time.isdigit():
+            formatted_time = raw_time[:2] + ":" + raw_time[2:]
+        else:
+            formatted_time = raw_time
+
+        # --- DESTINATION ---
+        dest = svc.select_one(".location span")
+        destination = dest.get_text(strip=True) if dest else ""
+
+        # --- STATUS (strip operator/coach info) ---
+        addl = svc.select_one(".addl")
+        secline = svc.select_one(".secline")
+
+        status_text = ""
+        if addl:
+            status_text = addl.get_text(strip=True)
+            if secline:
+                status_text = status_text.replace(secline.get_text(strip=True), "").strip()
+
+        # --- PLATFORM ---
+        platform_el = svc.select_one(".platformbox")
+        platform = platform_el.get_text(strip=True) if platform_el else ""
+
+        departures.append({
+            "time": formatted_time,
+            "destination": destination,
+            "status": status_text,
+            "platform": platform
+        })
+
+    return departures
+
+
+def scrape_stop(atco_code):
+    url = BASE_URL + atco_code
+    r = requests.get(url, timeout=10)
+    r.raise_for_status()
+
+    soup = BeautifulSoup(r.text, "html.parser")
+    items = soup.select("li.departure-board__item")
+
+    departures = []
+
+    for item in items:
+        line = item.select_one(".single-visit__name")
+        dest = item.select_one(".single-visit__description")
+        eta = item.select_one(".single-visit__arrival-time__cell")
+        highlight = item.select_one(".single-visit__highlight")
+        icon = item.select_one(".single-visit__icon__default")
+
+        departures.append({
+            "line": line.get_text(strip=True) if line else None,
+            "destination": dest.get_text(strip=True) if dest else None,
+            "eta": eta.get_text(strip=True) if eta else None,
+            "colour": (
+                highlight["style"]
+                .replace("background-color:", "")
+                .replace(";", "")
+                .strip()
+                if highlight else "#444"
+            ),
+            "live": (
+                "real-time-animation" in icon.get("class", [])
+                if icon else False
+            )
+        })
+
+    return departures
+
+
+def render_bus_row(dep):
+    return f"""
+    <tr>
+      <td class="bus-line" style="background:{dep['colour']};">{dep['line']}</td>
+      <td class="bus-destination">{dep['destination']}</td>
+      <td class="bus-eta">{dep['eta']}</td>
+    </tr>
+    """
+
+
+def render_bus_card(stop_name, departures):
+    rows = "".join(render_bus_row(d) for d in departures)
+
+    return f"""
+    <div class="bus-card">
+      <div class="bus-stop-title">{stop_name}</div>
+      <table class="bus-table">
+        {rows}
+      </table>
+    </div>
+    """
+
+
+def render_train_row(dep):
+    return f"""
+    <tr>
+      <td class="train-time">{dep['time']}</td>
+      <td class="train-destination">{dep['destination']}</td>
+      <td class="train-status">{dep['status']}</td>
+      <td class="train-platform">{dep['platform']}</td>
+    </tr>
+    """
+
+
+def render_train_card(station_name, departures):
+    rows = "".join(render_train_row(d) for d in departures)
+
+    return f"""
+    <div class="train-card">
+      <div class="train-station-title">
+        <img class="train-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/National_Rail_logo.svg/120px-National_Rail_logo.svg.png" alt="NR">
+        {station_name}
+      </div>
+      <table class="train-table">
+        {rows}
+      </table>
+    </div>
+    """
+
+
+def render_clock_card(last_updated):
+    return f"""
+    <div class="clock-card">
+      <div id="live-clock" class="clock-time"></div>
+      <div class="clock-updated">Last updated: {last_updated}</div>
+    </div>
+    """
+
+
+def load_config():
+    with open("config.json") as f:
+        return json.load(f)
+
+
+def parse_hhmm(t):
+    return datetime.strptime(t, "%H:%M").replace(
+        year=datetime.now().year,
+        month=datetime.now().month,
+        day=datetime.now().day
+    )
+
+
+def main():
+    cfg = load_config()
+    stops = cfg["stops"]
+    train_cfg = cfg["train_stations"]
+
+    content = ""
+
+    # -------------------------
+    # BUS LOOP
+    # -------------------------
+    for stop_name, cfg_stop in stops.items():
+        atco = cfg_stop["atco"]
+        limit = cfg_stop["limit"]
+
+        try:
+            deps = scrape_stop(atco)
+
+            if deps == []:
+                title = stop_name.replace("_", " ").title()
+                content += f"""
+                <div class="bus-card">
+                  <div class="bus-stop-title">{title}</div>
+                  <p class="no-buses">No buses due</p>
+                </div>
+                """
+                continue
+
+            deps = deps[:limit]
+            title = stop_name.replace("_", " ").title()
+            content += render_bus_card(title, deps)
+
+        except Exception:
+            continue
+
+    # -------------------------
+    # TRAIN: SCRAPE WAUN-GRON ONCE
+    # -------------------------
+    next_waun = None            # <-- FIX: ensure variable always exists
+    arrival_central = None      # already present
+
+    try:
+        waun_code = train_cfg[WAUN_STATION_KEY]["code"]
+        waun_limit = train_cfg[WAUN_STATION_KEY]["limit"]
+
+        waun_deps = scrape_train_station(waun_code)
+
+        # 1) Render Waun-Gron Park card with ALL departures
+        waun_title = WAUN_STATION_KEY.replace("_", " ").title()
+        waun_display_deps = waun_deps[:waun_limit]
+        content += render_train_card(waun_title, waun_display_deps)
+
+        # 2) Find next connecting train
+        for dep in waun_deps:
+            if dep["destination"] not in VALID_TERMINI:
+                continue
+
+            try:
+                dt = parse_hhmm(dep["time"])
+                if dt > datetime.now():
+                    next_waun = dt
+                    break
+            except:
+                continue
+
+        if next_waun:
+            arrival_central = next_waun + timedelta(minutes=15)
+
+    except Exception as e:
+        print(f"Waun-Gron Park connection logic ERROR — {e}")
+        arrival_central = None
+
+
+    # -------------------------
+    # TRAIN LOOP (Cardiff Central filtering)
+    # -------------------------
+    for station_name, cfg_station in train_cfg.items():
+
+        if station_name == WAUN_STATION_KEY:
+            continue
+
+        code = cfg_station["code"]
+        limit = cfg_station["limit"]
+
+        try:
+            deps = scrape_train_station(code)
+
+            if deps == []:
+                ...
+                continue
+
+            # CARDIFF CENTRAL OVERRIDE
+            if station_name == CENTRAL_STATION_KEY:
+
+                # Filter reachable trains
+                reachable = []
+                if arrival_central:
+                    for dep in deps:
+                        try:
+                            dt = parse_hhmm(dep["time"])
+                            if dt >= arrival_central:
+                                reachable.append(dep)
+                        except:
+                            continue
+                else:
+                    reachable = deps  # fallback: show all
+
+                deps = reachable[:limit]
+
+                # Build summary safely
+                if next_waun and arrival_central:
+                    summary_html = render_connection_summary(arrival_central, next_waun)
+                else:
+                    summary_html = "<div class='connection-summary'>No reachable connections</div>"
+
+                title = station_name.replace("_", " ").title()
+
+                # Render card with summary
+                card_html = f"""
+                <div class="train-card">
+                  <div class="train-station-title">
+                    <img class="train-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/National_Rail_logo.svg/120px-National_Rail_logo.svg.png" alt="NR">
+                    {title}
+                  </div>
+                  {summary_html}
+                  <table class="train-table">
+                    {''.join(render_train_row(d) for d in deps)}
+                  </table>
+                </div>
+                """
+
+                content += card_html
+                continue
+
+            # DEFAULT TRAIN CARD (unchanged)
+            deps = deps[:limit]
+            title = station_name.replace("_", " ").title()
+            content += render_train_card(title, deps)
+
+        except Exception as e:
+            print(f"Train station {station_name} ERROR — {e}")
+            continue
+
+    # -------------------------
+    # NOW generate the HTML
+    # -------------------------
+    clock_card = render_clock_card(datetime.now().strftime("%H:%M:%S"))
+
+    with open("template.html") as f:
+        template = f.read()
+
+    html = template.format(
+        title="Bus Departures",
+        heading="Live Bus & Train Departures",
+        content=content,
+        clock_card=clock_card,
+        last_updated=datetime.now().strftime("%H:%M:%S")
+    )
+
+    with open("buses.html", "w") as f:
+        f.write(html)
+
+    print("Generated buses.html")
+
+
+if __name__ == "__main__":
+    main()
