@@ -1,0 +1,9 @@
+xrandr --query
+it should be on the first few lines, right before connected and the display resolution.
+In the examples below, the display is called HDMI-A-1
+
+TO TURN DIPLAY OFF:
+WAYLAND_DISPLAY=wayland-0 wlopm --off HDMI-A-1
+
+TO TURN DISPLAY ON:
+WAYLAND_DISPLAY=wayland-0 wlopm --on HDMI-A-1
